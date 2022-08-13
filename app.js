@@ -8,6 +8,9 @@ const db = require('./models')
 const Todo = db.Todo
 const User = db.User
 
+const usePassport = require('./config/passport')
+const passport = require('passport')
+
 const app = express()
 const PORT = 3000
 
@@ -20,6 +23,8 @@ app.use(session({
 }))
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
+
+usePassport(app)
 
 app.get('/', (req, res) => {
   return Todo.findAll({
@@ -41,9 +46,10 @@ app.get('/users/login', (req, res) => {
   res.render('login')
 })
 
-app.post('/users/login', (req, res) => {
-  res.send('login')
-})
+app.post('/users/login', passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/users/login'
+}))
 
 app.get('/users/register', (req, res) => {
   res.render('register')
